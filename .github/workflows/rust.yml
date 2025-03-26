@@ -1,24 +1,61 @@
-name: Rust
+name: CI
 
 on:
   push:
-    branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
   workflow_dispatch:
 
-env:
-  CARGO_TERM_COLOR: always
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  build:
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x86_64
+            runner-os: windows-latest
+            cargo-target: x86_64-pc-windows-msvc
 
-    runs-on: ubuntu-latest
+          - name: Linux x86_64
+            runner-os: ubuntu-latest
+            cargo-target: x86_64-unknown-linux-gnu
 
+          - name: macOS x86_64
+            runner-os: macos-13
+            cargo-target: x86_64-apple-darwin
+
+          - name: macOS aarch64
+            runner-os: macos-14
+            cargo-target: aarch64-apple-darwin
+
+    name: CI - ${{ matrix.name }}
+    runs-on: ${{ matrix.runner-os }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-   
-    - name: Run tests
-      run: cargo test --verbose
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: ${{ matrix.cargo-target }}
+
+      - name: Build
+        run: |
+          cargo build \
+          --workspace \
+          --locked --all-features \
+          --target ${{ matrix.cargo-target }}
+
+
+      - name: Test
+        run: |
+          cargo test \
+          --lib --workspace \
+          --locked --all-features \
+          --target ${{ matrix.cargo-target }}
