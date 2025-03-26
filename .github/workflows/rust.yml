@@ -45,6 +45,11 @@ jobs:
           components: clippy
           targets: ${{ matrix.cargo-target }}
 
+      - name: Set UUID
+        id: generate-uuid
+        uses: shaybentk/uuid-action@v0.0.1
+        with:
+          name: ${{ gihub.sha }}
       - name: Build
         run: |
           cargo build \
@@ -57,13 +62,18 @@ jobs:
         if: ${{ matrix.cargo-target }} == x86_64-pc-windows-msvc
         uses: actions/upload-artifact@v4.6.2  
         with:
-          name: svg2gerber
+          name: ${{ steps.generate-uuid.outputs.uuid }}
           path: target/${{ matrix.cargo-target }}/debug/svg2gerber.exe
+      - name: Set UUID
+        id: generate-uuids
+        uses: shaybentk/uuid-action@v0.0.1
+        with:
+          name: ${{ gihub.sha }} 
       - name: Others
         if: false == (${{ matrix.cargo-target }} == x86_64-pc-windows-msvc)
         uses: actions/upload-artifact@v4.6.2  
         with:
-          name: svg2gerber
+          name: ${{ steps.generate-uuids.outputs.uuid }}
           path: target/${{ matrix.cargo-target }}/debug/svg2gerber
       - name: Test
         run: |
