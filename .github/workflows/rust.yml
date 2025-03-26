@@ -52,7 +52,7 @@ jobs:
           --all-features \
           --target ${{ matrix.cargo-target }}
 
-      - run: ls target/${matrix.cargo-target}
+      - run: ls target/${{ matrix.cargo-target }}
       - name: Test
         run: |
           cargo test \
