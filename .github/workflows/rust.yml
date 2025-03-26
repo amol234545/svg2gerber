@@ -49,7 +49,7 @@ jobs:
         run: |
           cargo build \
           --workspace \
-          --locked --all-features \
+          --all-features \
           --target ${{ matrix.cargo-target }}
 
 
@@ -57,5 +57,5 @@ jobs:
         run: |
           cargo test \
           --lib --workspace \
-          --locked --all-features \
+          --all-features \
           --target ${{ matrix.cargo-target }}
